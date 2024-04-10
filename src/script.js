@@ -1,32 +1,29 @@
+let cars = []; // Initialize your cars array
 document.addEventListener('DOMContentLoaded', () => {
     const loadCarsBtn = document.getElementById('loadCarsBtn');
     const carList = document.getElementById('carList');
-    cars = [];
+
+
     loadCarsBtn.addEventListener('click', () => {
-        fetch('/api/getAllCars')
-            .then(response => response.json())
-            .then(data => {
-                cars = data;
-                carList.innerHTML = '';
-                data.forEach((car, index) => {
-                    const carCard = document.createElement('div');
-                    carCard.classList.add('car-card');
-                    carCard.innerHTML = `
-                        <h2>${car.make} ${car.model}</h2>
-                        <p><strong>Year:</strong> ${car.year}</p>
-                        <p><strong>Make:</strong> ${car.make}</p>
-                        <p><strong>Model:</strong> ${car.model}</p>
-                        <p><strong>Price:</strong> R${car.price}</p>
-                        <button class="btn btn-remove" data-index="${index}">Remove</button>
-                    `;
-                    carList.appendChild(carCard);
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching car data:', error);
-            });
+        // No need to fetch, use the cars variable directly
+        carList.innerHTML = '';
+        cars.forEach((car, index) => {
+            const carCard = document.createElement('div');
+            carCard.classList.add('car-card');
+            carCard.innerHTML = `
+                <h2>${car.make} ${car.model}</h2>
+                <p><strong>Year:</strong> ${car.year}</p>
+                <p><strong>Make:</strong> ${car.make}</p>
+                <p><strong>Model:</strong> ${car.model}</p>
+                <p><strong>Color:</strong> R${car.color}</p>
+                <p><strong>Price:</strong> R${car.price}</p>
+                <button class="btn btn-remove" data-index="${index}">Remove</button>
+            `;
+            carList.appendChild(carCard);
+        });
     });
 });
+
 function addCar(newCar) {
     fetch('/api/addCar', {
         method: 'POST',
@@ -38,9 +35,8 @@ function addCar(newCar) {
         .then(response => response.json())
         .then(data => {
             console.log('Success:', data);
-            //reload cars
-            // const loadCarsBtn = document.getElementById('loadCarsBtn');
-            loadCarsBtn.click();
+            // Add the new car to the cars array
+            cars.push(data);
         })
         .catch(error => {
             console.error('Error:', error);
@@ -52,29 +48,29 @@ carForm.addEventListener('submit', event => {
     const make = document.getElementById('make').value;
     const model = document.getElementById('model').value;
     const year = document.getElementById('year').value;
+    const color = document.getElementById('color').value;
     const price = document.getElementById('price').value;
-    addCar({ make, model, year, price });
+    addCar({ make, model, year, color, price });
     carForm.reset();
 });
 
-// Function to remove a car
-function removeCar(index) {
-    const carId = cars[index].id;
-    fetch(`/api/deleteCar?id=${carId}`, {
-        method: 'DELETE'
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Success:', data);
-            //reload cars
-            // const loadCarsBtn = document.getElementById('loadCarsBtn');
-            loadCarsBtn.click();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+document.getElementById('removeCarBtn').addEventListener('click', event => {
+    event.preventDefault();
+    const make = document.getElementById('make').value;
+    const model = document.getElementById('model').value;
+    removeCar(make, model);
+    carForm.reset();
+});
+
+function removeCar(make, model) {
+    // Find the index of the car with the specified make and model
+    const index = cars.findIndex(car => car.make === make && car.model === model);
+    
+    // If the car is found, remove it from the cars array
+    if (index !== -1) {
+        cars.splice(index, 1);
+    }
 }
-// Event delegation for remove buttons
 carList.addEventListener('click', event => {
     if (event.target.classList.contains('btn-remove')) {
         const index = event.target.dataset.index;
