@@ -54,23 +54,14 @@ carForm.addEventListener('submit', event => {
     carForm.reset();
 });
 
-document.getElementById('removeCarBtn').addEventListener('click', event => {
-    event.preventDefault();
-    const make = document.getElementById('make').value;
-    const model = document.getElementById('model').value;
-    removeCar(make, model);
-    carForm.reset();
-});
+function removeCar(index) {
+    // Remove the car from the cars array
+    cars.splice(index, 1);
 
-function removeCar(make, model) {
-    // Find the index of the car with the specified make and model
-    const index = cars.findIndex(car => car.make === make && car.model === model);
-    
-    // If the car is found, remove it from the cars array
-    if (index !== -1) {
-        cars.splice(index, 1);
-    }
+    // Log the updated cars array
+    console.log('Success:', cars);
 }
+
 carList.addEventListener('click', event => {
     if (event.target.classList.contains('btn-remove')) {
         const index = event.target.dataset.index;
